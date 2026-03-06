@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">ContactApp</string>
+    <string name="there_is_no_contacts_added_here">There is No Contacts Added Here</string>
+    <string name="user_name">User Name</string>
+    <string name="example_email_com">example@email.com</string>
+    <string name="_200000000000">+200000000000</string>
+    <string name="enter_user_phone">Enter User Phone</string>
+    <string name="enter_user_email">Enter User Email</string>
+    <string name="enter_user_name">Enter User Name</string>
+    <string name="btn_delete_contact">Delete</string>
+</resources>
