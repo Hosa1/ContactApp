@@ -1,57 +1,45 @@
 package com.example.contactapp.contactAdapter
 
-import android.net.Uri
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.example.contactapp.R
 import com.example.contactapp.data.entity.Contact
 import com.example.contactapp.databinding.ContactItemBinding
-import java.io.File
-import androidx.core.net.toUri
 
 class ContactAdapter(
     private var contacts: List<Contact>,
-    private val onDeleteClick: (Contact) -> Unit):RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
+    private val onDeleteClick: (Contact) -> Unit
+) : RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
+
     fun updateContacts(newContacts: List<Contact>) {
         contacts = newContacts
         notifyDataSetChanged()
     }
-    class ContactViewHolder(private val binding: ContactItemBinding) :
-        RecyclerView.ViewHolder(binding.root) {
 
-        var photo = binding.ivContactPhoto
-        var name = binding.tvContactName
-        var email = binding.tvContactEmail
-        var phone = binding.tvContactPhone
-        var delete = binding.btnDelete
-    }
+    class ContactViewHolder(val binding: ContactItemBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_item, parent, false)
-        return ContactViewHolder(ContactItemBinding.bind(view))
+        val binding = ContactItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ContactViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
         val contact = contacts[position]
-        if (!contact.imageUrl.isNullOrEmpty()) {
-            holder.photo.setImageURI(contact.imageUrl.toUri())
-        } else {
-            holder.photo.setImageResource(R.drawable.contacts_icon)
-        }
-        holder.name.text = contact.name
-        holder.email.text = contact.email
-        holder.phone.text = contact.phone
-
-        holder.delete.setOnClickListener {
-            onDeleteClick(contact)
+        with(holder.binding) {
+            if (!contact.imageUrl.isNullOrEmpty()) {
+                ivContactPhoto.setImageURI(contact.imageUrl.toUri())
+            } else {
+                ivContactPhoto.setImageResource(R.drawable.contacts_icon)
+            }
+            tvContactName.text = contact.name
+            tvContactEmail.text = contact.email
+            tvContactPhone.text = contact.phone
+            btnDelete.setOnClickListener { onDeleteClick(contact) }
         }
     }
 
-    override fun getItemCount(): Int {
-        return contacts.size
-    }
+    override fun getItemCount() = contacts.size
 }
