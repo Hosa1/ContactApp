@@ -11,6 +11,7 @@ import com.example.contactapp.R
 import com.example.contactapp.data.entity.Contact
 import com.example.contactapp.databinding.ContactItemBinding
 import java.io.File
+import androidx.core.net.toUri
 
 class ContactAdapter(
     private var contacts: List<Contact>,
@@ -37,7 +38,7 @@ class ContactAdapter(
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
         val contact = contacts[position]
         if (!contact.imageUrl.isNullOrEmpty()) {
-            holder.photo.setImageURI(Uri.fromFile(File(contact.imageUrl)))
+            holder.photo.setImageURI(contact.imageUrl.toUri())
         } else {
             holder.photo.setImageResource(R.drawable.contacts_icon)
         }

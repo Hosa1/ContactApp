@@ -18,5 +18,7 @@ interface ContactDao {
     @Query("DELETE FROM contacts WHERE id = :id")
      fun deleteContact(id: Int)
 
+    @Query("DELETE FROM contacts WHERE id = (SELECT MAX(id) FROM contacts)")
+     fun deleteLastContact()
 
 }

@@ -14,31 +14,40 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
-    lateinit var binding: ActivityMainBinding
-    lateinit var db: ContactDatabase
-    lateinit var adapter: ContactAdapter
+
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var db: ContactDatabase
+    private lateinit var adapter: ContactAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setupDatabase()
+        setupRecyclerView()
+        setupClickListeners()
+        loadContacts()
+    }
 
+    private fun setupDatabase() {
         db = ContactDatabase.getInstance(this)
+    }
+
+    private fun setupRecyclerView() {
         adapter = ContactAdapter(emptyList()) { contact ->
             lifecycleScope.launch(Dispatchers.IO) {
                 db.contactDao().deleteContact(contact.id)
-                withContext(Dispatchers.Main) {
-                    loadContacts()
-                }
+                withContext(Dispatchers.Main) { loadContacts() }
             }
         }
         binding.rvContact.adapter = adapter
-        binding.fabBtn.setOnClickListener {
-            showSheetFragment()
-        }
-        loadContacts()
+        binding.fabBtnDelete.visibility = View.GONE
+    }
 
+    private fun setupClickListeners() {
+        binding.fabBtn.setOnClickListener { showSheetFragment() }
+        binding.fabBtnDelete.setOnClickListener { deleteLastContact() }
     }
 
     fun loadContacts() {
@@ -46,23 +55,26 @@ class MainActivity : AppCompatActivity() {
             val contacts = db.contactDao().getAllContacts()
             withContext(Dispatchers.Main) {
                 adapter.updateContacts(contacts)
-                checkIfDataBaseEmptyOrNot(contacts)
+                updateEmptyState(contacts)
             }
         }
     }
 
     private fun showSheetFragment() {
-        val addContactBottomSheetFragment = AddContactBottomSheetFragment()
-        addContactBottomSheetFragment.show(supportFragmentManager, null)
+        AddContactBottomSheetFragment().show(supportFragmentManager, null)
     }
 
-    private fun checkIfDataBaseEmptyOrNot(contacts: List<Contact>) {
-        if (contacts.isNotEmpty()) {
-            binding.tvThereIsNoContactsAddedHere.visibility = View.GONE
-            binding.lottieAnimationView.visibility = View.GONE
-        } else {
-            binding.tvThereIsNoContactsAddedHere.visibility = View.VISIBLE
-            binding.lottieAnimationView.visibility = View.VISIBLE
+    private fun updateEmptyState(contacts: List<Contact>) {
+        val isEmpty = contacts.isEmpty()
+        binding.tvThereIsNoContactsAddedHere.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.lottieAnimationView.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.fabBtnDelete.visibility = if (isEmpty) View.GONE else View.VISIBLE
+    }
+
+    private fun deleteLastContact() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            db.contactDao().deleteLastContact()
+            withContext(Dispatchers.Main) { loadContacts() }
         }
     }
 }

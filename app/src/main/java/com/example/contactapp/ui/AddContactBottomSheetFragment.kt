@@ -38,10 +38,14 @@ class AddContactBottomSheetFragment : BottomSheetDialogFragment() {
         binding.etUserEmail.addTextChangedListener { binding.tvPreviewEmail.text = it.toString() }
         binding.etUserPhone.addTextChangedListener { binding.tvPreviewPhone.text = it.toString() }
 
-        binding.ivContactPhoto.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-            startActivityForResult(intent, MY_REQUEST_GALLERY)
-        }
+            binding.ivContactPhoto.setOnClickListener {
+                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "image/*"
+                }
+                startActivityForResult(intent, MY_REQUEST_GALLERY)
+            }
+
 
         binding.btnEnterUser.setOnClickListener {
             val userName = binding.etUserName.text.toString()
